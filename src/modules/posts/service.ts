@@ -74,4 +74,14 @@ export class PostService {
       where: { tags: { some: { name: tagName } } },
     });
   }
+  async assignTagsToPost(postId:string, tags:string[]){
+    await this.prisma.post.update({
+        where: {id:postId},
+        data:{
+            tags: {
+                set: tags.map(tag=>({name:tag}))
+            }
+        }
+    })
+  }
 }

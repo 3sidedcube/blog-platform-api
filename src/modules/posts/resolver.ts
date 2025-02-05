@@ -6,6 +6,7 @@ import { CreatePost } from './dto/createpost';
 import { Response } from 'src/common/dto/response';
 import { UpdatePost } from './dto/updatepost';
 import { PaginatedPosts, Post } from './dto/post';
+import { AssignTag } from './dto/assigntag';
 
 @Resolver()
 export class PostsResolver {
@@ -62,5 +63,14 @@ export class PostsResolver {
     @Args('limit', { type: () => Number, nullable: true }) limit = 10
   ) {
     return this.postsService.searchPosts(query, tag, page, limit);
+  }
+  @Mutation(()=>Response)
+  @UseGuards(Authorization)
+  async assignTagToPost(
+    @Args('request') input: AssignTag
+  )
+  {
+    await this.postsService.assignTagsToPost(input.postId, input.tags)
+    return { message: "Tags assigned successfully"}
   }
 }
