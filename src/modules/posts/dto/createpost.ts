@@ -6,4 +6,6 @@ export class CreatePost {
   title: string;
   @Field()
   content: string;
+  @Field(()=>[String],{nullable: true})
+  tags?: string[]
 }

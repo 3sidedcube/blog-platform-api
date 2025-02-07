@@ -18,7 +18,6 @@ import { TagModule } from './modules/tags/module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       context: ({ req }) => ({ req }),
       path: 'docs',
     }),

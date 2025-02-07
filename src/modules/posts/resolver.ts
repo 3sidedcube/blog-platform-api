@@ -15,21 +15,21 @@ export class PostsResolver {
   @Mutation(() => Response)
   @UseGuards(Authorization)
   async createPost(
-    @Args('request') input: CreatePost,
+    @Args('request') request: CreatePost,
     @Context() context
     
   ) {
     const authorId = context.req.user.sub
-    await this.postsService.createPost(input.title, input.content, authorId);
+    await this.postsService.createPost(request.title, request.content, authorId,request?.tags,);
     return {message:'Post created successfully'};
   }
 
   @Mutation(() => Response)
   @UseGuards(Authorization)
   async updatePost(
-    @Args('request') input: UpdatePost
+    @Args('request') request: UpdatePost
   ) {
-    await this.postsService.updatePost(input.id,input);
+    await this.postsService.updatePost(request.id,request);
     return {message:'Post updated successfully'};
   }
 
@@ -51,6 +51,16 @@ export class PostsResolver {
   ){
     return this.postsService.getAllPosts(page,limit)
   }
+  @Query(()=> PaginatedPosts)
+  @UseGuards(Authorization)
+  async getMyPosts(
+  @Args('page',{type:()=> Number, nullable:true}) page=1,
+  @Args('limit', {type:()=>Number, nullable:true}) limit=20,
+  @Context() context
+  ){
+    const authorId = context.req.user.sub
+    return this.postsService.myPosts(authorId,page,limit)
+  }
   @Query(()=>Post,{nullable: true})
   async getPostById(@Args('id') id:string){
     return this.postsService.getPostById(id)
@@ -58,11 +68,10 @@ export class PostsResolver {
   @Query(() => PaginatedPosts)
   async searchPosts(
     @Args('query', { type: () => String, nullable: true }) query?: string,
-    @Args('tag', { type: () => String, nullable: true }) tag?: string,
     @Args('page', { type: () => Number, nullable: true }) page = 1,
-    @Args('limit', { type: () => Number, nullable: true }) limit = 10
+    @Args('limit', { type: () => Number, nullable: true }) limit = 20
   ) {
-    return this.postsService.searchPosts(query, tag, page, limit);
+    return this.postsService.searchPosts(query, page, limit);
   }
   @Mutation(()=>Response)
   @UseGuards(Authorization)

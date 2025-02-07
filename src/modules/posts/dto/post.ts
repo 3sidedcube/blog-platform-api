@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int } from "@nestjs/graphql";
+import { Tag } from "src/modules/tags/dto/tag";
 
 @ObjectType()
 export class PaginatedPosts {
@@ -22,6 +23,6 @@ export class Post {
 
   @Field()
   createdAt: Date;
-  @Field(()=> [String], {nullable:true})
-  tags? : string[]
+  @Field(()=> [Tag], {nullable:true})
+  tags? : Tag[]
 }

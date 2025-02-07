@@ -5,12 +5,15 @@ import { PrismaService } from "prisma/service";
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  async createPost(title: string, content: string, authorId: string) {
+  async createPost(title: string, content: string, authorId: string, tags?:string[]) {
     return this.prisma.post.create({
       data: {
         title,
         content,
-        authorId
+        authorId,
+        tags:{
+          connect: tags?.map((id)=>({id: id})) || []
+        }
     }})
   }
 
@@ -32,7 +35,20 @@ export class PostService {
     const posts = await  this.prisma.post.findMany({
         orderBy : {createdAt: 'desc'},
         skip,
-        take:limit
+        take:limit,
+        include: {tags: true}
+    })
+    const total = await this.prisma.post.count();
+    return {posts, total}
+  }
+  async myPosts(userid: string,page:number, limit:number){
+    const skip = (page-1) * limit
+    const posts = await  this.prisma.post.findMany({
+        where: {authorId: userid},
+        orderBy : {createdAt: 'desc'},
+        skip,
+        take:limit,
+        include: {tags : true}
     })
     const total = await this.prisma.post.count();
     return {posts, total}
@@ -43,19 +59,15 @@ export class PostService {
         include : {tags: true}
     })
   }
-  async searchPosts(query?: string, tag?: string, page: number = 1, limit: number = 10) {
+  async searchPosts(query?: string, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const whereClause: any = {};
 
     if (query) {
       whereClause.OR = [
         { title: { contains: query, mode: 'insensitive' } },
-        { content: { contains: query, mode: 'insensitive' } },
+        { tags: {some:{name:{ contains: query, mode: 'insensitive' }}} },
       ];
-    }
-
-    if (tag) {
-      whereClause.tags = { some: { name: tag } };
     }
 
     const posts = await this.prisma.post.findMany({
