@@ -76,10 +76,10 @@ export class PostsResolver {
   @Mutation(()=>Response)
   @UseGuards(Authorization)
   async assignTagToPost(
-    @Args('request') input: AssignTag
+    @Args('request') request: AssignTag
   )
   {
-    await this.postsService.assignTagsToPost(input.postId, input.tags)
+    await this.postsService.assignTagsToPost(request.postId, request.tags)
     return { message: "Tags assigned successfully"}
   }
 }
